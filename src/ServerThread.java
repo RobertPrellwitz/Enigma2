@@ -29,10 +29,16 @@ public class ServerThread extends Thread{
     {
         boolean user = false;
         String date=LocalDateTime.now().toString(); String internet= sock.getInetAddress().toString(); int port = sock.getPort();String output = ""; String name="";
-        String outLine = ("New Connection: Date / Time: " + date +" Internet Addresss: " + internet + " Port#: "+ port + "\nWelcome to Enigma!  Please enter your Name: ");
-        String intruder = "Intruder Detected and deflected!";
-        String authorized = "Authorized User Granted Access.\n";
+        String outLine = ("New Connection: Date / Time: " + date +" Internet Addresss: " + internet + " Port#: "+ port) ;
+        String greeting ="Welcome to Enigma Version 1!  \nPlease Enter your Name: ";
+        String intruder = "Intruder Detected and deflected!\n";
+        String tryAgain = " You may attempt Logging in again!";
+        String authorized = "Authorized User Granted Access.\n ";
+        String command = "Enter Command: ";
+        String end = "end";
         writeSock.println(outLine);
+        writeSock.println(greeting);
+        writeSock.println(end);
         System.out.println(outLine);
         logWrite.println(outLine);
 
@@ -44,12 +50,15 @@ public class ServerThread extends Thread{
                 logWrite.println("Exception: " + except);
             }
 
-            if (name.toLowerCase().equals("Rob") || name.toLowerCase().equals("Bond")) {
+            if (name.toLowerCase().equals("rob") || name.toLowerCase().equals("bond")) {
                 logWrite.println(intruder);
-                writeSock.println(intruder);
+                writeSock.println(intruder + tryAgain);
+                writeSock.println(end);
+
             } else {
                 logWrite.println(authorized);
-                writeSock.println(authorized);
+                writeSock.println(authorized + command);
+                writeSock.println(end);
                 user= true;
             }
         }
@@ -64,25 +73,36 @@ public class ServerThread extends Thread{
                 String check = inLine.toLowerCase();
                 if (check.equals("hello"))
                 {
-                    writeSock.println( "Welcome to Enigma. To customize your cipher please enter shift 1:");
+                    writeSock.println( "Welcome to Enhanced Enigma. \nTo customize your cipher please enter shift 1:");
+                    writeSock.println(end);
                     int c1 = Integer.parseInt(readSock.readLine());
-                    writeSock.println( "Welcome to Enigma. To customize your cipher please enter shift 1:");
+                    writeSock.println( "Now please enter shift 2:");
+                    writeSock.println(end);
                     int c2 = Integer.parseInt(readSock.readLine());
                     logWrite.println("Cipher Shift 1: " + c1 + ", Cipher Shift 2: " + c2);
-
+                    writeSock.println("Enter Text:");
+                    writeSock.println(end);
                     while(!quitTime)
                     {
-                        writeSock.println("Enter Text:");
                         String textSwap = readSock.readLine();
+                        if( textSwap.equals("quit"))
+                        {
+                            writeSock.println("connection closed");
+                            logWrite.println("Connection Terminatated at: "+ LocalDateTime.now().toString());
+                            writeSock.println(end);
+                            quitTime = true;
+                            sock.close();
+                        }
                         output = (enigma.cipher(textSwap,c1,c2));
                         writeSock.println(output);
+                        writeSock.println(end);
                         System.out.println(output);
                     }
                 }
                 if( check.equals("quit"))
                 {
                     writeSock.println("connection closed");
-                    writeSock.flush();
+                    writeSock.println(end);
                     logWrite.println("Connection Terminatated at: "+ LocalDateTime.now().toString());
                     quitTime = true;
                     sock.close();
@@ -90,7 +110,7 @@ public class ServerThread extends Thread{
 
                 output = (enigma.cipher(inLine));
                 writeSock.println(output);
-                writeSock.flush();
+                writeSock.println(end);
                 System.out.println(output);
 
             }
@@ -102,5 +122,9 @@ public class ServerThread extends Thread{
                 logWrite.println("Exception: "+ except);
             }
         }
+    }
+    public void quit(String check)
+    {
+
     }
 }
